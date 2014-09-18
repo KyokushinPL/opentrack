@@ -24,14 +24,14 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<double> fov, headpos_x, headpos_y, headpos_z;
     value<int> camera_index, force_fps, resolution;
     value<bool> red_only;
     value<bool> eyaw, epitch, eroll, ex, ey, ez;
     value<double> marker_pitch;
     settings() :
-        b(bundle("aruco-tracker")),
+        b(make_bundle("aruco-tracker")),
         fov(b, "field-of-view", 56),
         headpos_x(b, "headpos-x", 0),
         headpos_y(b, "headpos-y", 0),
@@ -50,12 +50,12 @@ struct settings {
     {}
 };
 
-class Tracker : protected QThread, public ITracker
+class Work : protected QThread, public ITracker
 {
     Q_OBJECT
 public:
-	Tracker();
-    virtual ~Tracker();
+	Work();
+    virtual ~Work();
     void StartTracker(QFrame* frame);
     void GetHeadPoseData(double *data);
     void run();
@@ -81,14 +81,14 @@ class TrackerControls : public QWidget, public ITrackerDialog
 public:
     TrackerControls();
     void registerTracker(ITracker * x) {
-        tracker = dynamic_cast<Tracker*>(x);
+        tracker = dynamic_cast<Work*>(x);
     }
     void unRegisterTracker() {
         tracker = nullptr;
     }
 private:
 	Ui::Form ui;
-    Tracker* tracker;
+    Work* tracker;
     settings s;
     TranslationCalibrator calibrator;
     QTimer calib_timer;

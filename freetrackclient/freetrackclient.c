@@ -88,7 +88,14 @@ FT_EXPORT(bool) FTGetData(FTData* data)
 // The Delphi-code from the FreeTrack repo suggest a char * as argument, so it cost me an afternoon to figure it out (and keep ArmA2 from crashing).
 // Thanks guys!
 */
-FT_EXPORT(void) FTReportName( int name )
+
+#ifdef __GNUC__
+#   define unused(id) id __attribute__((unused))
+#else
+#   define unused(id) id
+#endif
+
+FT_EXPORT(void) FTReportName( int unused(name) )
 {
 	dbg_report("FTReportName request (ID = %d).\n", name);
 }

@@ -297,7 +297,7 @@ void TrackerDialog::poll_tracker_info()
 void TrackerDialog::registerTracker(ITracker *t)
 {
 	qDebug()<<"TrackerDialog:: Tracker registered";
-	tracker = static_cast<Tracker*>(t);
+	tracker = static_cast<Work*>(t);
     if (isVisible() & s.b->modifiedp())
         tracker->apply(s);
 	ui.tcalib_button->setEnabled(true);

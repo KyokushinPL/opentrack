@@ -19,12 +19,12 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<bool> enableTX, enableTY, enableTZ, enableRX, enableRY, enableRZ;
     value<double> fov;
     value<int> fps, camera_idx, resolution;
     settings() :
-        b(bundle("HT-Tracker")),
+        b(make_bundle("HT-Tracker")),
         enableTX(b, "enable-tx", true),
         enableTY(b, "enable-ty", true),
         enableTZ(b, "enable-tz", true),
@@ -38,12 +38,12 @@ struct settings {
     {}
 };
 
-class Tracker : public QObject, public ITracker
+class Work : public QObject, public ITracker
 {
     Q_OBJECT
 public:
-	Tracker();
-    virtual ~Tracker();
+	Work();
+    virtual ~Work();
     void StartTracker(QFrame* frame);
     void GetHeadPoseData(double *data);
     void load_settings(ht_config_t* config);

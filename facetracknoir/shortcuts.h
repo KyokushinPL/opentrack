@@ -18,6 +18,7 @@ public:
     KeyboardShortcutDialog( FaceTrackNoIR *ftnoir, QWidget *parent );
 private:
 	Ui::UICKeyboardShortcutDialog ui;
+    // WARN avoid shared_ptr, else circular reference count
 	FaceTrackNoIR *mainApp;
 
 private slots:

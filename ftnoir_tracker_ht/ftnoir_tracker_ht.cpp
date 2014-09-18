@@ -88,7 +88,7 @@ static resolution_tuple resolution_choices[] = {
 	{ 0, 0 }
 };
 
-void Tracker::load_settings(ht_config_t* config)
+void Work::load_settings(ht_config_t* config)
 {
     int nframes = 0;
     switch (static_cast<int>(s.fps))
@@ -137,7 +137,7 @@ void Tracker::load_settings(ht_config_t* config)
         config->dist_coeffs[i] = 0;
 }
 
-Tracker::Tracker() :
+Work::Work() :
     lck_shm(HT_SHM_NAME, HT_MUTEX_NAME, sizeof(ht_shm_t)),
     shm(reinterpret_cast<ht_shm_t*>(lck_shm.mem)),
     videoWidget(nullptr),
@@ -147,7 +147,7 @@ Tracker::Tracker() :
     shm->result.filled = false;
 }
 
-Tracker::~Tracker()
+Work::~Work()
 {
     if (shm) {
         shm->terminate = true;
@@ -162,7 +162,7 @@ Tracker::~Tracker()
 		delete videoWidget;
 }
 
-void Tracker::StartTracker(QFrame* videoframe)
+void Work::StartTracker(QFrame* videoframe)
 {
     videoframe->show();
     videoWidget = new HTVideoWidget(videoframe);
@@ -186,7 +186,7 @@ void Tracker::StartTracker(QFrame* videoframe)
 #endif
 }
 
-void Tracker::GetHeadPoseData(double *data)
+void Work::GetHeadPoseData(double *data)
 {
     lck_shm.lock();
     shm->timer = 0;
@@ -249,7 +249,7 @@ extern "C" FTNOIR_TRACKER_BASE_EXPORT Metadata* CALLING_CONVENTION GetMetadata()
 
 extern "C" FTNOIR_TRACKER_BASE_EXPORT ITracker* CALLING_CONVENTION GetConstructor()
 {
-    return new Tracker;
+    return new Work;
 }
 
 extern "C" FTNOIR_TRACKER_BASE_EXPORT ITrackerDialog* CALLING_CONVENTION GetDialog( )

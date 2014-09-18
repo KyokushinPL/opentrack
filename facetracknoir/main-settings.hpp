@@ -8,7 +8,7 @@ using namespace options;
 struct key_opts {
     value<int> key_index;
     value<bool> ctrl, alt, shift;
-    key_opts(pbundle b, const QString& name) :
+    key_opts(bundle b, const QString& name) :
         key_index(b,  QString("key-index-%1").arg(name), 0),
         ctrl(b,  QString("key-ctrl-%1").arg(name), 0),
         alt(b,  QString("key-alt-%1").arg(name), 0),
@@ -20,7 +20,7 @@ struct axis_opts {
     value<double> zero;
     value<bool> invert, altp;
     value<int> src;
-    axis_opts(pbundle b, QString pfx, int idx) :
+    axis_opts(bundle b, QString pfx, int idx) :
         zero(b, n(pfx, "zero-pos"), 0),
         invert(b, n(pfx, "invert-axis"), false),
         altp(b, n(pfx, "alt-axis-sign"), false),
@@ -33,13 +33,13 @@ private:
 };
 
 struct main_settings {
-    pbundle b;
+    bundle b;
     key_opts center_key;
     key_opts toggle_key;
     value<QString> tracker_dll, tracker2_dll, filter_dll, protocol_dll;
     axis_opts a_x, a_y, a_z, a_yaw, a_pitch, a_roll;
     value<bool> tcomp_p, tcomp_tz, dingp;
-    main_settings(pbundle b) :
+    main_settings(bundle b) :
         b(b),
         center_key(b, "center"),
         toggle_key(b, "toggle"),

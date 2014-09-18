@@ -35,11 +35,11 @@
 
 //-----------------------------------------------------------------------------
 // Constantly processes the tracking chain in a separate thread
-class Tracker : public ITracker, QThread, public FrameProvider
+class Work : public ITracker, QThread, public FrameProvider
 {
 public:
-	Tracker();
-    virtual ~Tracker();
+	Work();
+    virtual ~Work();
     virtual void StartTracker(QFrame* parent_window);
     virtual void GetHeadPoseData(double* data);
     virtual void refreshVideo();

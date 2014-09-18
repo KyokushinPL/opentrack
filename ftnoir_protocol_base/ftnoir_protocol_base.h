@@ -12,7 +12,7 @@ struct IProtocol
 
 inline IProtocol::~IProtocol() { }
 
-struct IProtocolDialog
+struct IProtocolDialog : public virtual QWidget
 {
     virtual ~IProtocolDialog() {}
     virtual void registerProtocol(IProtocol *protocol) = 0;

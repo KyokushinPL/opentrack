@@ -39,10 +39,10 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<int> ip1, ip2, ip3, ip4, port;
     settings() :
-        b(bundle("udp-proto")),
+        b(make_bundle("udp-proto")),
         ip1(b, "ip1", 192),
         ip2(b, "ip2", 168),
         ip3(b, "ip3", 0),

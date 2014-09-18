@@ -14,6 +14,7 @@ public:
 private:
     Ui::UICCurveConfigurationDialog ui;
     void save();
+    // WARN avoid shared_ptr, else circular reference count
     FaceTrackNoIR *mainApp;
 
 private slots:

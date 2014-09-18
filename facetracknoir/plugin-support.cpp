@@ -5,83 +5,11 @@
 #   include <dlfcn.h>
 #endif
 
-SelectedLibraries* Libraries = NULL;
-
-SelectedLibraries::~SelectedLibraries()
+Plugin::Plugin(const QString& filename)
 {
-    if (pTracker) {
-        delete pTracker;
-        pTracker = NULL;
-    }
-
-    if (pSecondTracker) {
-        delete pSecondTracker;
-        pSecondTracker = NULL;
-    }
-
-    if (pFilter)
-        delete pFilter;
-
-    if (pProtocol)
-        delete pProtocol;
-}
-
-SelectedLibraries::SelectedLibraries(IDynamicLibraryProvider* mainApp) :
-    pTracker(NULL), pSecondTracker(NULL), pFilter(NULL), pProtocol(NULL)
-{
-    correct = false;
-    if (!mainApp)
-        return;
-    CTOR_FUNPTR ptr;
-    DynamicLibrary* lib;
-
-    lib = mainApp->current_tracker1();
-
-    if (lib && lib->Constructor) {
-        ptr = (CTOR_FUNPTR) lib->Constructor;
-        pTracker = (ITracker*) ptr();
-    }
-
-    lib = mainApp->current_tracker2();
-
-    if (lib && lib->Constructor) {
-        ptr = (CTOR_FUNPTR) lib->Constructor;
-        pSecondTracker = (ITracker*) ptr();
-    }
-
-    lib = mainApp->current_protocol();
-
-    if (lib && lib->Constructor) {
-        ptr = (CTOR_FUNPTR) lib->Constructor;
-        pProtocol = (IProtocol*) ptr();
-    }
-
-    lib = mainApp->current_filter();
-
-    if (lib && lib->Constructor) {
-        ptr = (CTOR_FUNPTR) lib->Constructor;
-        pFilter = (IFilter*) ptr();
-    }
-
-    if (pProtocol)
-        if(!pProtocol->checkServerInstallationOK())
-            return;
-    if (pTracker) {
-        pTracker->StartTracker( mainApp->get_video_widget() );
-    }
-    if (pSecondTracker) {
-        pSecondTracker->StartTracker( mainApp->get_video_widget() );
-    }
-
-    correct = true;
-}
-
-DynamicLibrary::DynamicLibrary(const QString& filename)
-{
-    this->filename = filename;
 #if defined(_WIN32)
-    QString fullPath = QCoreApplication::applicationDirPath() + "/" + this->filename;
-    handle = new QLibrary(fullPath);
+    QString fullPath = QCoreApplication::applicationDirPath() + "/" + filename;
+    handle = std::make_shared<QLibrary>(fullPath);
     qDebug() << handle->errorString();
     Dialog = (DIALOG_FUNPTR) handle->resolve(MAYBE_STDCALL_UNDERSCORE "GetDialog" CALLING_CONVENTION_SUFFIX_VOID_FUNCTION);
     qDebug() << handle->errorString();
@@ -120,7 +48,7 @@ DynamicLibrary::DynamicLibrary(const QString& filename)
 #endif
 }
 
-DynamicLibrary::~DynamicLibrary()
+Plugin::~Plugin()
 {
 #if defined(_WIN32)
     handle->unload();

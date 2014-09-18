@@ -13,7 +13,7 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<double> rotation_alpha,
                   translation_alpha,
                   second_order_alpha,
@@ -22,7 +22,7 @@ struct settings {
                   trans_deadzone,
                   expt;
     settings() :
-        b(bundle("Accela")),
+        b(make_bundle("Accela")),
         rotation_alpha(b, "rotation-alpha", ACCELA_SMOOTHING_ROTATION),
         translation_alpha(b, "translation-alpha", ACCELA_SMOOTHING_TRANSLATION),
         second_order_alpha(b, "second-order-alpha", ACCELA_SECOND_ORDER_ALPHA),

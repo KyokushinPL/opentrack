@@ -114,7 +114,7 @@ void CurveConfigurationDialog::save() {
     
     for (int i = 0; qfcs[i].qfc; i++)
     {
-        THeadPoseDOF& axis = mainApp->axis(qfcs[i].axis);
+        Mapping& axis = mainApp->axis(qfcs[i].axis);
         qfcs[i].qfc->saveSettings(currentFile, qfcs[i].altp ? axis.name2 : axis.name1);
     }
 }

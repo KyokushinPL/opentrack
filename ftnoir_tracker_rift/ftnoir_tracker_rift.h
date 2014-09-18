@@ -11,11 +11,11 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<bool> bEnableYaw, bEnablePitch, bEnableRoll, bEnableX, bEnableY, bEnableZ, useYawSpring;
     value<double> constant_drift, persistence, deadzone;
     settings() :
-        b(bundle("Rift")),
+        b(make_bundle("Rift")),
         bEnableYaw(b, "EnableYaw", true),
         bEnablePitch(b, "EnablePitch", true),
         bEnableRoll(b, "EnableRoll", true),

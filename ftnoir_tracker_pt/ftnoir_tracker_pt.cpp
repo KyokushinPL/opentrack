@@ -21,7 +21,7 @@ const float rad2deg = 180.0/3.14159265;
 const float deg2rad = 1.0/rad2deg;
 
 //-----------------------------------------------------------------------------
-Tracker::Tracker()
+Work::Work()
     : mutex(QMutex::Recursive),
       commands(0),
 	  video_widget(NULL), 
@@ -33,7 +33,7 @@ Tracker::Tracker()
 	qDebug()<<"Tracker::Tracker";
 }
 
-Tracker::~Tracker()
+Work::~Work()
 {
 	qDebug()<<"Tracker::~Tracker";
 	// terminate tracker thread
@@ -45,19 +45,19 @@ Tracker::~Tracker()
     if (video_frame->layout()) delete video_frame->layout();
 }
 
-void Tracker::set_command(Command command)
+void Work::set_command(Command command)
 {
     //QMutexLocker lock(&mutex);
 	commands |= command;
 }
 
-void Tracker::reset_command(Command command)
+void Work::reset_command(Command command)
 {
     //QMutexLocker lock(&mutex);
 	commands &= ~command;
 }
 
-void Tracker::run()
+void Work::run()
 {
 	qDebug()<<"Tracker:: Thread started";
 
@@ -113,13 +113,13 @@ void Tracker::run()
 
 	qDebug()<<"Tracker:: Thread stopping";
 }
-void Tracker::apply(settings& s)
+void Work::apply(settings& s)
 {
     // caller guarantees object lifetime
 	new_settings = &s;
 }
 
-void Tracker::apply_inner()
+void Work::apply_inner()
 {
     settings* tmp = new_settings.exchange(nullptr);
     if (tmp == nullptr)
@@ -156,13 +156,13 @@ void Tracker::apply_inner()
 	qDebug()<<"Tracker::apply ends";
 }
 
-void Tracker::reset()
+void Work::reset()
 {
 	QMutexLocker lock(&mutex);
 	point_tracker.reset();
 }
 
-void Tracker::center()
+void Work::center()
 {
 	point_tracker.reset();	// we also do a reset here since there is no reset shortkey yet
 	QMutexLocker lock(&mutex);
@@ -171,7 +171,7 @@ void Tracker::center()
 	X_GH_0 = R_GC * X_CM_0 * X_MH;
 }
 
-bool Tracker::get_frame_and_points(cv::Mat& frame_copy, std::shared_ptr< std::vector<Vec2f> >& points)
+bool Work::get_frame_and_points(cv::Mat& frame_copy, std::shared_ptr< std::vector<Vec2f> >& points)
 {
 	QMutexLocker lock(&mutex);
 	if (frame.empty()) return false;
@@ -182,12 +182,12 @@ bool Tracker::get_frame_and_points(cv::Mat& frame_copy, std::shared_ptr< std::ve
 	return true;
 }
 
-void Tracker::refreshVideo()
+void Work::refreshVideo()
 {	
 	if (video_widget) video_widget->update_frame_and_points();
 }
 
-void Tracker::StartTracker(QFrame *parent_window)
+void Work::StartTracker(QFrame *parent_window)
 {
     this->video_frame = parent_window;
     video_frame->setAttribute(Qt::WA_NativeWindow);
@@ -215,7 +215,7 @@ void Tracker::StopTracker(bool exit)
 #define THeadPoseData double
 #endif
 
-void Tracker::GetHeadPoseData(THeadPoseData *data)
+void Work::GetHeadPoseData(THeadPoseData *data)
 {
 	{
 		QMutexLocker lock(&mutex);
@@ -260,5 +260,5 @@ extern "C" FTNOIR_TRACKER_BASE_EXPORT ITracker* CALLING_CONVENTION GetConstructo
 FTNOIR_TRACKER_BASE_EXPORT ITrackerPtr __stdcall GetTracker()
 #endif
 {
-	return new Tracker;
+	return new Work;
 }

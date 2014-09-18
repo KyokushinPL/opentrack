@@ -47,10 +47,10 @@ using namespace options;
 #define FSUIPC_FILENAME "C:\\Program Files\\Microsoft Games\\Flight Simulator 9\\Modules\\FSUIPC.dll"
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<QString> LocationOfDLL;
     settings() :
-        b(bundle("proto-fsuipc")),
+        b(make_bundle("proto-fsuipc")),
         LocationOfDLL(b, "dll-location", FSUIPC_FILENAME)
     {}
 };

@@ -77,10 +77,10 @@ enum INPUT_ID
 };
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<int> sxs_manifest;
     settings() :
-        b(bundle("proto-simconnect")),
+        b(make_bundle("proto-simconnect")),
         sxs_manifest(b, "sxs-manifest-version", 0)
     {}
 };

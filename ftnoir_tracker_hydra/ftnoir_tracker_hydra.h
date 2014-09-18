@@ -5,10 +5,10 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<bool> bEnableRoll, bEnablePitch, bEnableYaw, bEnableX, bEnableY, bEnableZ;
     settings() :
-        b(bundle("tracker-hydra")),
+        b(make_bundle("tracker-hydra")),
         bEnableRoll(b, "enable-rz", true),
         bEnablePitch(b, "enable-ry", true),
         bEnableYaw(b, "enable-rx", true),

@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>790</width>
-    <height>500</height>
+    <height>470</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -83,7 +83,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>130</y>
+      <y>110</y>
       <width>320</width>
       <height>240</height>
      </rect>
@@ -109,40 +109,12 @@
     <property name="lineWidth">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="widget4video" native="true">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>320</width>
-       <height>240</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>65536</width>
-       <height>65536</height>
-      </size>
-     </property>
-    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox4logo">
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>10</y>
+      <y>-20</y>
       <width>229</width>
       <height>121</height>
      </rect>
@@ -517,7 +489,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
+      <y>10</y>
       <width>81</width>
       <height>100</height>
      </rect>
@@ -545,9 +517,9 @@
     <property name="geometry">
      <rect>
       <x>350</x>
-      <y>270</y>
-      <width>191</width>
-      <height>91</height>
+      <y>280</y>
+      <width>181</width>
+      <height>114</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -630,9 +602,9 @@
    <widget class="QPushButton" name="btnEditCurves">
     <property name="geometry">
      <rect>
-      <x>580</x>
-      <y>390</y>
-      <width>171</width>
+      <x>560</x>
+      <y>360</y>
+      <width>177</width>
       <height>38</height>
      </rect>
     </property>
@@ -677,8 +649,8 @@
    <widget class="QLabel" name="game_name">
     <property name="geometry">
      <rect>
-      <x>370</x>
-      <y>40</y>
+      <x>350</x>
+      <y>10</y>
       <width>411</width>
       <height>20</height>
      </rect>
@@ -702,10 +674,10 @@
    <widget class="QGroupBox" name="groupFilter">
     <property name="geometry">
      <rect>
-      <x>580</x>
-      <y>210</y>
-      <width>171</width>
-      <height>91</height>
+      <x>550</x>
+      <y>180</y>
+      <width>201</width>
+      <height>116</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -786,9 +758,9 @@
     <property name="geometry">
      <rect>
       <x>350</x>
-      <y>60</y>
-      <width>191</width>
-      <height>91</height>
+      <y>40</y>
+      <width>181</width>
+      <height>116</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -865,44 +837,13 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="cameraName">
-    <property name="geometry">
-     <rect>
-      <x>370</x>
-      <y>10</y>
-      <width>411</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>65536</width>
-      <height>65536</height>
-     </size>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
       <x>350</x>
       <y>160</y>
-      <width>191</width>
-      <height>91</height>
+      <width>181</width>
+      <height>116</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -979,10 +920,10 @@
    <widget class="QGroupBox" name="groupStartStop">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>400</y>
-      <width>190</width>
-      <height>65</height>
+      <x>460</x>
+      <y>380</y>
+      <width>181</width>
+      <height>81</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -998,7 +939,7 @@
      </size>
     </property>
     <property name="title">
-     <string>GO!</string>
+     <string/>
     </property>
     <property name="alignment">
      <set>Qt::AlignHCenter|Qt::AlignTop</set>
@@ -1059,9 +1000,9 @@
    <widget class="QPushButton" name="btnShortcuts">
     <property name="geometry">
      <rect>
-      <x>580</x>
-      <y>340</y>
-      <width>171</width>
+      <x>570</x>
+      <y>310</y>
+      <width>149</width>
       <height>38</height>
      </rect>
     </property>
@@ -1107,9 +1048,9 @@
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>60</y>
-      <width>231</width>
-      <height>123</height>
+      <y>30</y>
+      <width>201</width>
+      <height>149</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -1228,7 +1169,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>380</y>
+      <y>350</y>
       <width>141</width>
       <height>106</height>
      </rect>
@@ -1468,7 +1409,7 @@
     <property name="geometry">
      <rect>
       <x>160</x>
-      <y>380</y>
+      <y>350</y>
       <width>161</width>
       <height>111</height>
      </rect>

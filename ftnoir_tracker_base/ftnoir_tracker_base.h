@@ -1,6 +1,7 @@
 #pragma once
 #include "ftnoir_tracker_base_global.h"
 #include "ftnoir_tracker_types.h"
+#include <QWidget>
 #include <QFrame>
 
 struct ITracker
@@ -13,7 +14,7 @@ struct ITracker
 
 inline ITracker::~ITracker() { }
 
-struct ITrackerDialog
+struct ITrackerDialog : public virtual QWidget
 {
     virtual ~ITrackerDialog() {}
     virtual void registerTracker(ITracker *tracker) = 0;

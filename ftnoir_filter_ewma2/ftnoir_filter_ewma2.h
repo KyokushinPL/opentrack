@@ -9,11 +9,11 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     // these are sadly sliders for now due to int/double mismatch -sh
     value<int> kMinSmoothing, kMaxSmoothing, kSmoothingScaleCurve;
     settings() :
-        b(bundle("ewma-filter")),
+        b(make_bundle("ewma-filter")),
         kMinSmoothing(b, "min-smoothing", 15),
         kMaxSmoothing(b, "max-smoothing", 50),
         kSmoothingScaleCurve(b, "smoothing-scale-curve", 10)

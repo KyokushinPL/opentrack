@@ -3,14 +3,14 @@
 
 #include "ftnoir_tracker_base/ftnoir_tracker_types.h"
 
-struct T6DOF {
+struct Camera {
 public:
     double axes[6];
 
-    T6DOF() : axes {0,0,0, 0,0,0 } {}
+    Camera() : axes {0,0,0, 0,0,0 } {}
 };
 
-T6DOF operator-(const T6DOF& A, const T6DOF& B); // get new pose with respect to reference pose B
-T6DOF operator+(const T6DOF& A, const T6DOF& B); // get new pose with respect to reference pose B^-1
+Camera operator-(const Camera& A, const Camera& B); // get new pose with respect to reference pose B
+Camera operator+(const Camera& A, const Camera& B); // get new pose with respect to reference pose B^-1
 
 #endif //__TRACKER_TYPES_H__

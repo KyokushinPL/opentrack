@@ -31,10 +31,10 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<QString> joyid;
     settings() :
-        b(bundle("tracker-joystick")),
+        b(make_bundle("tracker-joystick")),
         joyid(b, "joy-id", "")
     {}
 };

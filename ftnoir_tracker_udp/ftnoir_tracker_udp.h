@@ -8,12 +8,12 @@
 using namespace options;
 
 struct settings {
-    pbundle b;
+    bundle b;
     value<int> port;
     value<bool> enable_roll, enable_pitch, enable_yaw,
                 enable_x, enable_y, enable_z;
     settings() :
-        b(bundle("udp-tracker")),
+        b(make_bundle("udp-tracker")),
         port(b, "port", 4242),
         enable_roll(b, "enable-roll", true),
         enable_pitch(b, "enable-pitch", true),

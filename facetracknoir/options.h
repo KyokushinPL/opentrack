@@ -14,8 +14,12 @@
 #include <QVariant>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QCoreApplication>
+#include <QDebug>
+
 #include <memory>
 #include <cassert>
+
 #include <QWidget>
 #include <QComboBox>
 #include <QCheckBox>
@@ -24,9 +28,6 @@
 #include <QSlider>
 #include <QLineEdit>
 #include <QLabel>
-#include <QCoreApplication>
-
-#include <QDebug>
 
 namespace options {
     template<typename T>
@@ -65,12 +66,14 @@ namespace options {
     // snapshot of qsettings group at given time
     class group {
     private:
+        static constexpr const volatile char* org = "opentrack";
         QMap<QString, QVariant> map;
         QString name;
     public:
         group(const QString& name) : name(name)
         {
-            QSettings settings(group::org);
+            auto org = const_cast<const char*>(group::org);
+            QSettings settings(org);
             QString currentFile =
                     settings.value("SettingsFile",
                                    QCoreApplication::applicationDirPath() + "/settings/default.ini" ).toString();
@@ -80,9 +83,9 @@ namespace options {
                 map[k] = iniFile.value(k);
             iniFile.endGroup();
         }
-        static constexpr const char* org = "opentrack";
-        void save() {
-            QSettings settings(group::org);
+        void serialize() const {
+            auto org = const_cast<const char*>(group::org);
+            QSettings settings(org);
             QString currentFile =
                     settings.value("SettingsFile",
                                    QCoreApplication::applicationDirPath() + "/settings/default.ini" ).toString();
@@ -93,7 +96,7 @@ namespace options {
             s.endGroup();
         }
         template<typename T>
-        T get(const QString& k) {
+        T get(const QString& k) const {
             return qcruft_to_t<T>(map.value(k));
         }
 
@@ -101,7 +104,7 @@ namespace options {
         {
             map[s] = d;
         }
-        bool contains(const QString& s)
+        bool contains(const QString& s) const
         {
             return map.contains(s);
         }
@@ -142,7 +145,7 @@ namespace options {
             if (!transient.contains(name) || datum != transient.get<QVariant>(name))
             {
                 if (!modified)
-                    qDebug() << name << transient.get<QVariant>(name) << datum;
+                    qDebug() << "marked dirty cause" << name << transient.get<QVariant>(name) << datum;
                 modified = true;
                 transient.put(name, datum);
                 emit bundleChanged();
@@ -163,7 +166,7 @@ namespace options {
             QMutexLocker l(&mtx);
             modified = false;
             saved = transient;
-            transient.save();
+            transient.serialize();
         }
         void revert()
         {
@@ -182,17 +185,17 @@ namespace options {
         void reloaded();
     };
 
-    typedef std::shared_ptr<impl_bundle> pbundle;
+    typedef std::shared_ptr<impl_bundle> bundle;
 
     class base_value : public QObject {
         Q_OBJECT
     public:
-        base_value(pbundle b, const QString& name) : b(b), self_name(name) {
+        base_value(bundle b, const QString& name) : b(b), self_name(name) {
             connect(b.get(), SIGNAL(reloaded()), this, SLOT(reread_value()));
         }
     protected:
         virtual QVariant operator=(const QVariant& datum) = 0;
-        pbundle b;
+        bundle b;
         QString self_name;
     public slots:
         void reread_value()
@@ -225,7 +228,7 @@ namespace options {
     public:
         static constexpr const Qt::ConnectionType QT_CONNTYPE = Qt::UniqueConnection;
         static constexpr const Qt::ConnectionType OPT_CONNTYPE = Qt::UniqueConnection;
-        value(pbundle b, const QString& name, T def) :
+        value(bundle b, const QString& name, T def) :
             base_value(b, name)
         {
             if (!b->contains(name) || b->get<QVariant>(name).type() == QVariant::Invalid)
@@ -233,7 +236,7 @@ namespace options {
                 this->operator=(qVariantFromValue<T>(def));
             }
         }
-        operator T() { return b->get<T>(self_name); }
+        operator T() const { return T(b->get<T>(self_name)); }
         QVariant operator=(const T& datum)
         {
             return this->operator =(qVariantFromValue<T>(datum));
@@ -307,7 +310,7 @@ namespace options {
         base_value::connect(&v, SIGNAL(valueChanged(QString)), lb, SLOT(setText(QString)), v.OPT_CONNTYPE);
     }
 
-    inline pbundle bundle(const QString& group) {
+    inline bundle make_bundle(const QString& group) {
         return std::make_shared<impl_bundle>(group);
     }
 }

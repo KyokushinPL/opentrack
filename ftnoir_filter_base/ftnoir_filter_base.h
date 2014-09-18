@@ -11,7 +11,7 @@ struct IFilter
 
 inline IFilter::~IFilter() { }
 
-struct IFilterDialog
+struct IFilterDialog : public virtual QWidget
 {
     virtual ~IFilterDialog() {}
     virtual void registerFilter(IFilter* tracker) = 0;

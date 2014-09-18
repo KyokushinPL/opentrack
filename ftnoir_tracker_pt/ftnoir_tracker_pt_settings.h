@@ -16,7 +16,7 @@ using namespace options;
 
 struct settings
 {
-    pbundle b;
+    bundle b;
     value<int> cam_index,
                cam_res_x,
                cam_res_y,
@@ -45,7 +45,7 @@ struct settings
     value<int> active_model_panel, cap_x, cap_y, cap_z;
 
     settings() :
-        b(bundle("tracker-pt")),
+        b(make_bundle("tracker-pt")),
         cam_index(b, "camera-index", 0),
         cam_res_x(b, "camera-res-width", 640),
         cam_res_y(b, "camera-res-height", 480),

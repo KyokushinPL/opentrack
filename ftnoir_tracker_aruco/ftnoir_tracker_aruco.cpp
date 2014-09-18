@@ -101,11 +101,11 @@ static resolution_tuple resolution_choices[] = {
 	{ 0, 0 }
 };
 
-Tracker::Tracker() : stop(false), layout(nullptr), videoWidget(nullptr)
+Work::Work() : stop(false), layout(nullptr), videoWidget(nullptr)
 {
 }
 
-Tracker::~Tracker()
+Work::~Work()
 {
     stop = true;
     wait();
@@ -118,7 +118,7 @@ Tracker::~Tracker()
     qDebug() << "all done!";
 }
 
-void Tracker::StartTracker(QFrame* videoframe)
+void Work::StartTracker(QFrame* videoframe)
 {
     videoframe->show();
     videoWidget = new ArucoVideoWidget(videoframe);
@@ -137,7 +137,7 @@ void Tracker::StartTracker(QFrame* videoframe)
 
 #define HT_PI 3.1415926535
 
-void Tracker::getRT(cv::Matx33f& r_, cv::Vec3f& t_)
+void Work::getRT(cv::Matx33f& r_, cv::Vec3f& t_)
 {
     QMutexLocker l(&mtx);
 
@@ -145,7 +145,7 @@ void Tracker::getRT(cv::Matx33f& r_, cv::Vec3f& t_)
     t_ = t;
 }
 
-void Tracker::run()
+void Work::run()
 {
     int rint = s.resolution;
     if (rint < 0 || rint >= (int)(sizeof(resolution_choices) / sizeof(resolution_tuple)))
@@ -376,7 +376,7 @@ void Tracker::run()
     }
 }
 
-void Tracker::GetHeadPoseData(double *data)
+void Work::GetHeadPoseData(double *data)
 {
     QMutexLocker lck(&mtx);
     
@@ -437,7 +437,7 @@ extern "C" FTNOIR_TRACKER_BASE_EXPORT Metadata* CALLING_CONVENTION GetMetadata()
 
 extern "C" FTNOIR_TRACKER_BASE_EXPORT ITracker* CALLING_CONVENTION GetConstructor()
 {
-    return new Tracker;
+    return new Work;
 }
 
 extern "C" FTNOIR_TRACKER_BASE_EXPORT ITrackerDialog* CALLING_CONVENTION GetDialog( )

@@ -57,7 +57,7 @@ protected:
 	void settings_changed();
 
     settings s;
-	Tracker* tracker;
+	Work* tracker;
     VideoWidgetDialog* video_widget_dialog;
 	QTimer timer;
 
