@@ -64,7 +64,7 @@ class Work;				// pre-define class to avoid circular includes
 class FaceTrackNoIR;
 class KeybindingWorker;
 
-class FaceTrackNoIR : public QMainWindow, IDynamicLibraryProvider
+class FaceTrackNoIR : public QMainWindow
 {
 	Q_OBJECT
 
