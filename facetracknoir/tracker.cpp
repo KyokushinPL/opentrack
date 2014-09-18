@@ -22,7 +22,7 @@
 #   include <windows.h>
 #endif
 
-Work::Work(const PoseState& pose) :
+Work::Work(PoseState& pose) :
     pose(pose),
     should_quit(false),
     do_center(false),
@@ -85,13 +85,7 @@ void Work::run() {
     Camera center_camera;
 
     double newpose[6] = {0};
-    int sleep_ms = 15;
-
-    if (Libraries->pTracker)
-        sleep_ms = std::min(sleep_ms, 1000 / Libraries->pTracker->preferredHz());
-
-    if (Libraries->pSecondTracker)
-        sleep_ms = std::min(sleep_ms, 1000 / Libraries->pSecondTracker->preferredHz());
+    int sleep_ms = 4;
 
     qDebug() << "tracker Hz:" << 1000 / sleep_ms;
 
@@ -183,14 +177,12 @@ void Work::run() {
     }
 }
 
-void Work::getHeadPose( double *data ) {
+void Work::query(double *raw, double* mapped ) {
     QMutexLocker foo(&mtx);
     for (int i = 0; i < 6; i++)
+    {
         data[i] = raw_6dof.axes[i];
+        mapped[i] = output_camera.axes[i];
+    }
 }
 
-void Work::getOutputHeadPose( double *data ) {
-    QMutexLocker foo(&mtx);
-    for (int i = 0; i < 6; i++)
-        data[i] = output_camera.axes[i];
-}

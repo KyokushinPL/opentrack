@@ -40,6 +40,7 @@
 #include <QThread>
 #include <QDebug>
 #include <memory>
+#include <utility>
 
 #include "ui_facetracknoir.h"
 
@@ -52,6 +53,7 @@ using namespace options;
 #include "tracker.h"
 #include "facetracknoir/shortcuts.h"
 #include "facetracknoir/curve-config.h"
+#include "facetracknoir/runner.hpp"
 
 // XXX TODO remove these headers -sh 20140918
 #include "ftnoir_protocol_base/ftnoir_protocol_base.h"
@@ -72,20 +74,7 @@ public:
     FaceTrackNoIR(QWidget *parent = 0);
 	~FaceTrackNoIR();
 
-    QFrame *get_video_widget();
     void bindKeyboardShortcuts();
-    Plugin current_tracker1() {
-        return dlopen_trackers.value(ui.iconcomboTrackerSource->currentIndex(), Plugin());
-    }
-    Plugin current_tracker2() {
-        return dlopen_trackers.value(ui.cbxSecondTrackerSource->currentIndex() - 1, Plugin());
-    }
-    Plugin current_protocol() {
-        return dlopen_protocols.value(ui.iconcomboProtocol->currentIndex(), Plugin());
-    }
-    Plugin current_filter() {
-        return dlopen_filters.value(ui.iconcomboFilter->currentIndex(), Plugin());
-    }
     
 #if defined(_WIN32)
     Key keyCenter;
@@ -100,6 +89,8 @@ public:
 public slots:
     void shortcutRecentered();
     void shortcutToggled();
+    
+    bool is_running() { return state != nullptr; }
 
 private:
     void createIconGroupBox();
@@ -109,108 +100,6 @@ private:
     PoseState pose;
     Ui::OpentrackUI ui;
 	QTimer timUpdateHeadPose;
-    
-    // XXX TODO move to new header file
-    class Runner {
-    public:
-        typedef const Plugin& lib;
-        
-        Runner(PoseState& pose, QFrame* video_container, lib t1, lib t2, lib f, lib p) :
-            tracker1(nullptr),
-            tracker2(nullptr),
-            filter(nullptr),
-            proto(nullptr),
-            tracker1_dialog(nullptr),
-            tracker2_dialog(nullptr),
-            proto_dialog(nullptr),
-            filter_dialog(nullptr),
-            correct(false)
-        {
-            // invoke them all w/o short circuiting
-            // easier debug if something goes wrong -sh
-
-            if (t1.Constructor)
-                tracker1 = (ITracker*) t1.Constructor();
-            
-            if (t2.Constructor)
-                tracker2 = (ITracker*) t2.Constructor();
-            
-            if (p.Constructor)
-                proto = (IProtocol*) p.Constructor();
-            
-            if (f.Constructor)
-                filter = (IFilter*) f.Constructor();
-            
-            if (p.Constructor)
-                if(!proto->checkServerInstallationOK())
-                    return;
-            
-            if (!(tracker1 && proto))
-                return;
-            
-            tracker1->StartTracker(video_container);
-
-            if (tracker2)
-                tracker2->StartTracker(video_container);
-            
-            correct = true;
-            
-            t = std::make_shared<Work>(pose);
-            
-            t->start();
-        }
-        
-        ~Runner()
-        {   
-            t.reset();
-            
-            if (tracker1_dialog)
-                tracker1_dialog->unRegisterTracker();
-            
-            if (tracker2_dialog)
-                tracker2_dialog->unRegisterTracker();
-            
-            if (proto_dialog)
-                proto_dialog->unRegisterProtocol();
-            
-            if (filter_dialog)
-                filter_dialog->unregisterFilter();
-            
-            // XXX TODO use pointer class deleting on outta scope
-            // avoid boilerplate in ctor and dtor -sh 20140918
-            delete tracker1;
-            delete tracker2;
-            delete proto;
-            delete filter;
-            delete tracker1_dialog;
-            delete tracker2_dialog;
-            delete proto_dialog;
-            delete filter_dialog;
-        }
-        
-        void query(double* raw_data, double* mapped_data)
-        {
-            t->getOutputHeadPose(mapped_data);
-            t->getHeadPose(raw_data);
-        }
-        
-        bool is_correct() { return correct; }
-        
-    private:
-        ITracker* tracker1;
-        ITracker* tracker2;
-        IFilter* filter;
-        IProtocol* proto;
-        
-        ITrackerDialog* tracker1_dialog;
-        ITrackerDialog* tracker2_dialog;
-        IProtocolDialog* proto_dialog;
-        IFilterDialog* filter_dialog;
-        
-        ptr<Work> t;
-        
-        bool correct;
-    };
     
 	ptr<KeyboardShortcutDialog> _keyboard_shortcuts;
 	ptr<CurveConfigurationDialog> _curve_config;

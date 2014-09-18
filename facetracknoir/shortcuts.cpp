@@ -35,7 +35,7 @@ KeyboardShortcutDialog::KeyboardShortcutDialog( FaceTrackNoIR *ftnoir, QWidget *
 void KeyboardShortcutDialog::doOK() {
     mainApp->b->save();
     this->close();
-    if (mainApp->tracker)
+    if (mainApp->is_running())
         mainApp->bindKeyboardShortcuts();
 }
 

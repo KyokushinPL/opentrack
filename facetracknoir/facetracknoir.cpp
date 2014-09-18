@@ -151,10 +151,6 @@ FaceTrackNoIR::~FaceTrackNoIR() {
     save();
 }
 
-QFrame* FaceTrackNoIR::get_video_widget() {
-    return ui.video_frame;
-}
-
 void FaceTrackNoIR::open() {
      QFileDialog dialog(this);
      dialog.setFileMode(QFileDialog::ExistingFile);
@@ -251,12 +247,22 @@ void FaceTrackNoIR::updateButtonState(bool running)
     ui.btnStopTracker->setEnabled(running);
 }
 
-void FaceTrackNoIR::startTracker( ) {
+void FaceTrackNoIR::startTracker() {
     b->save();
     loadSettings();
     bindKeyboardShortcuts();
     
-    state = Runner(...);
+    Plugin t1 = dlopen_trackers.value(ui.iconcomboTrackerSource->currentIndex(), Plugin()),
+           t2 = dlopen_trackers.value(ui.cbxSecondTrackerSource->currentIndex() - 1, Plugin()),
+           p = dlopen_protocols.value(ui.iconcomboProtocol->currentIndex(), Plugin()),
+           f = dlopen_filters.value(ui.iconcomboFilter->currentIndex(), Plugin());
+    
+    state = std::make_shared<Runner>(pose,
+                                     ui.video_frame,
+                                     t1,
+                                     t2,
+                                     f,
+                                     p);
     
     if (!state->is_correct())
     {
@@ -270,26 +276,13 @@ void FaceTrackNoIR::startTracker( ) {
     keybindingWorker->start();
 #endif
 
-    {
-        QSettings settings("opentrack");
-        QString currentFile = settings.value ( "SettingsFile", QCoreApplication::applicationDirPath() + "/settings/default.ini" ).toString();
-        QSettings iniFile( currentFile, QSettings::IniFormat );
-
-        for (int i = 0; i < 6; i++)
-        {
-            pose.axes[i].curve.loadSettings(iniFile, pose.axes[i].name1);
-            pose.axes[i].curveAlt.loadSettings(iniFile, pose.axes[i].name2);
-        }
-    }
-
-    ui.video_frame->show();
     updateButtonState(true);
 
     timUpdateHeadPose.start(50);
 }
 
 void FaceTrackNoIR::stopTracker( ) {
-    ui.game_name->setText("Not connected");
+    ui.game_name->setText("");
 #if defined(_WIN32)
     if (keybindingWorker)
     {
@@ -300,142 +293,124 @@ void FaceTrackNoIR::stopTracker( ) {
 #endif
 	timUpdateHeadPose.stop();
     ui.pose_display->rotateBy(0, 0, 0);
+    
+    state = nullptr;
 
     updateButtonState(false);
 }
 
 void FaceTrackNoIR::showHeadPose() {
-    double newdata[6];
+    double raw[6], mapped[6];
 
-    state->getHeadPose(newdata);
-    ui.lcdNumX->display(newdata[TX]);
-    ui.lcdNumY->display(newdata[TY]);
-    ui.lcdNumZ->display(newdata[TZ]);
+    state->query(raw, mapped);
+    ui.lcdNumX->display(raw[TX]);
+    ui.lcdNumY->display(raw[TY]);
+    ui.lcdNumZ->display(raw[TZ]);
 
 
-    ui.lcdNumRotX->display(newdata[Yaw]);
-    ui.lcdNumRotY->display(newdata[Pitch]);
-    ui.lcdNumRotZ->display(newdata[Roll]);
+    ui.lcdNumRotX->display(raw[Yaw]);
+    ui.lcdNumRotY->display(raw[Pitch]);
+    ui.lcdNumRotZ->display(raw[Roll]);
 
-    tracker->getOutputHeadPose(newdata);
+    ui.pose_display->rotateBy(mapped[Yaw], mapped[Roll], mapped[Pitch]);
 
-    ui.pose_display->rotateBy(newdata[Yaw], newdata[Roll], newdata[Pitch]);
+    ui.lcdNumOutputPosX->display(mapped[TX]);
+    ui.lcdNumOutputPosY->display(mapped[TY]);
+    ui.lcdNumOutputPosZ->display(mapped[TZ]);
 
-    ui.lcdNumOutputPosX->display(newdata[TX]);
-    ui.lcdNumOutputPosY->display(newdata[TY]);
-    ui.lcdNumOutputPosZ->display(newdata[TZ]);
+    ui.lcdNumOutputRotX->display(mapped[Yaw]);
+    ui.lcdNumOutputRotY->display(mapped[Pitch]);
+    ui.lcdNumOutputRotZ->display(mapped[Roll]);
 
-    ui.lcdNumOutputRotX->display(newdata[Yaw]);
-    ui.lcdNumOutputRotY->display(newdata[Pitch]);
-    ui.lcdNumOutputRotZ->display(newdata[Roll]);
-
-    if (_curve_config) {
-        _curve_config->update();
-    }
-    if (Libraries->pProtocol)
-    {
-        const QString name = Libraries->pProtocol->getGameName();
-        ui.game_name->setText(name);
-    }
+    const QString name = state->proto->getGameName();
+    ui.game_name->setText(name);
 }
 
 void FaceTrackNoIR::showTrackerSettings() {
-	if (pTrackerDialog) {
-		pTrackerDialog = ptr<ITrackerDialog>();
-	}
-
-    Plugin* lib = dlopen_trackers.value(ui.iconcomboTrackerSource->currentIndex(), (Plugin*) NULL);
-
-    if (lib) {
-        pTrackerDialog = (ITrackerDialog*) lib->Dialog();
-        if (pTrackerDialog) {
-            auto foo = static_cast<QWidget*>(pTrackerDialog);
-            foo->setFixedSize(foo->size());
-            if (Libraries && Libraries->pTracker)
-                pTrackerDialog->registerTracker(Libraries->pTracker);
-            dynamic_cast<QWidget*>(pTrackerDialog)->show();
-        }
+    // XXX TODO these are copypasted, fix later -sh 20140918
+    if (state)
+    {
+        auto p = state->plugin_tracker1;
+        
+        if(state->tracker1_dialog)
+            delete state->tracker1_dialog;
+        
+        auto d = state->tracker1_dialog =
+                reinterpret_cast<ITrackerDialog*>(p.Dialog());
+        
+        d->setFixedSize(d->size());
+        d->registerTracker(state->tracker1);
+        
+        d->show();        
     }
 }
 
 void FaceTrackNoIR::showSecondTrackerSettings() {
-    if (pSecondTrackerDialog) {
-        delete pSecondTrackerDialog;
-        pSecondTrackerDialog = NULL;
-    }
-
-    Plugin* lib = dlopen_trackers.value(ui.cbxSecondTrackerSource->currentIndex() - 1, (Plugin*) NULL);
-
-    if (lib) {
-        pSecondTrackerDialog = (ITrackerDialog*) lib->Dialog();
-        if (pSecondTrackerDialog) {
-            auto foo = dynamic_cast<QWidget*>(pSecondTrackerDialog);
-            foo->setFixedSize(foo->size());
-            if (Libraries && Libraries->pSecondTracker)
-                pSecondTrackerDialog->registerTracker(Libraries->pSecondTracker);
-            dynamic_cast<QWidget*>(pSecondTrackerDialog)->show();
-        }
+    if (state)
+    {
+        auto p = state->plugin_tracker2;
+        
+        if(state->tracker2_dialog)
+            delete state->tracker2_dialog;
+        
+        auto d = state->tracker2_dialog =
+                reinterpret_cast<ITrackerDialog*>(p.Dialog());
+        
+        d->setFixedSize(d->size());
+        d->registerTracker(state->tracker2);
+        
+        d->show();        
     }
 }
 
 void FaceTrackNoIR::showServerControls() {
-    if (pProtocolDialog) {
-        delete pProtocolDialog;
-        pProtocolDialog = NULL;
-    }
-
-    Plugin* lib = dlopen_protocols.value(ui.iconcomboProtocol->currentIndex(), (Plugin*) NULL);
-
-    if (lib && lib->Dialog) {
-        pProtocolDialog = (IProtocolDialog*) lib->Dialog();
-        if (pProtocolDialog) {
-            auto foo = dynamic_cast<QWidget*>(pProtocolDialog);
-            foo->setFixedSize(foo->size());
-            dynamic_cast<QWidget*>(pProtocolDialog)->show();
-        }
+    if (state)
+    {
+        auto p = state->plugin_proto;
+        
+        if(state->proto_dialog)
+            delete state->proto_dialog;
+        
+        auto d = state->proto_dialog =
+                reinterpret_cast<IProtocolDialog*>(p.Dialog());
+        
+        d->setFixedSize(d->size());
+        d->show();        
     }
 }
 
 void FaceTrackNoIR::showFilterControls() {
-    if (pFilterDialog) {
-        delete pFilterDialog;
-        pFilterDialog = NULL;
-    }
-
-    Plugin* lib = dlopen_filters.value(ui.iconcomboFilter->currentIndex(), (Plugin*) NULL);
-
-    if (lib && lib->Dialog) {
-        pFilterDialog = (IFilterDialog*) lib->Dialog();
-        if (pFilterDialog) {
-            auto foo = static_cast<QWidget*>(pFilterDialog);
-            foo->setFixedSize(foo->size());
-            if (Libraries && Libraries->pFilter)
-                pFilterDialog->registerFilter(Libraries->pFilter);
-            static_cast<QWidget*>(pFilterDialog)->show();
+    if (state)
+    {
+        auto p = state->plugin_filter;
+        
+        if (p.Dialog)
+        {
+            if(state->filter_dialog)
+                delete state->filter_dialog;
+            
+            auto d = state->filter_dialog =
+                    reinterpret_cast<IFilterDialog*>(p.Dialog());
+            
+            d->setFixedSize(d->size());
+            d->show();
         }
     }
 }
 void FaceTrackNoIR::showKeyboardShortcuts() {
-
 	if (!_keyboard_shortcuts)
-    {
-        _keyboard_shortcuts = new KeyboardShortcutDialog( this, this );
-    }
+        _keyboard_shortcuts = std::make_shared<KeyboardShortcutDialog>(this, this);
 
     _keyboard_shortcuts->show();
     _keyboard_shortcuts->raise();
 }
+
 void FaceTrackNoIR::showCurveConfiguration() {
+    if (!_curve_config)
+        _curve_config = std::make_shared<CurveConfigurationDialog>(this, this);
 
-	if (!_curve_config)
-    {
-        _curve_config = new CurveConfigurationDialog( this, this );
-    }
-
-	if (_curve_config) {
-		_curve_config->show();
-		_curve_config->raise();
-	}
+    _curve_config->show();
+    _curve_config->raise();
 }
 
 void FaceTrackNoIR::exit() {
@@ -522,17 +497,16 @@ void FaceTrackNoIR::bindKeyboardShortcuts()
     bind_keyboard_shortcut(keyCenter, s.center_key);
     bind_keyboard_shortcut(keyToggle, s.toggle_key);
 #endif
-    if (tracker) /* running already */
+    if (state) /* running already */
     {
 #if defined(_WIN32)
         if (keybindingWorker)
         {
             keybindingWorker->should_quit = true;
             keybindingWorker->wait();
-            delete keybindingWorker;
-            keybindingWorker = NULL;
+            keybindingWorker = nullptr;
         }
-        keybindingWorker = new KeybindingWorker(*this, keyCenter, keyToggle);
+        keybindingWorker = std::make_shared<KeybindingWorker>(*this, keyCenter, keyToggle);
         keybindingWorker->start();
 #endif
     }
@@ -544,8 +518,8 @@ void FaceTrackNoIR::shortcutRecentered()
         QApplication::beep();
 
     qDebug() << "Center";
-    if (tracker)
-        tracker->do_center = true;
+    if (state)
+        state->work->do_center = true;
 }
 
 void FaceTrackNoIR::shortcutToggled()
@@ -554,6 +528,6 @@ void FaceTrackNoIR::shortcutToggled()
         QApplication::beep();
 
     qDebug() << "Toggle";
-    if (tracker)
-        tracker->enabled = !tracker->enabled;
+    if (state)
+        state->work->enabled = !state->work->enabled;
 }

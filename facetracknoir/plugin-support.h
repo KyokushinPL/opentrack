@@ -42,7 +42,7 @@ class Plugin {
 public:
     Plugin(const QString& filename);
     explicit Plugin() : Dialog(nullptr), Constructor(nullptr), Metadata(nullptr), handle() {}
-    virtual ~Plugin();
+    ~Plugin();
     
     DIALOG_FUNPTR Dialog;
     CTOR_FUNPTR Constructor;
