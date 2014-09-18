@@ -66,12 +66,3 @@ struct Metadata
     virtual void getIcon(QIcon *icon) = 0;
 };
 
-// merely to break a circular header dependency -sh
-class IDynamicLibraryProvider {
-public:
-    virtual Plugin current_tracker1() = 0;
-    virtual Plugin current_tracker2() = 0;
-    virtual Plugin current_protocol() = 0;
-    virtual Plugin current_filter() = 0;
-    virtual QFrame* get_video_widget() = 0;
-};
